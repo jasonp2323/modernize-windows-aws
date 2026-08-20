@@ -5,7 +5,7 @@ output "security_group_id" {
 
 output "directory_config_name" {
   description = "Directory config registered with WorkSpaces Applications."
-  value       = aws_appstream_directory_config.this.directory_name
+  value       = try(aws_appstream_directory_config.this[0].directory_name, null)
 }
 
 output "image_builder_names" {

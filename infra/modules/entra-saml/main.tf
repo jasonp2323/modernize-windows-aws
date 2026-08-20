@@ -18,8 +18,7 @@ locals {
   # Relay state endpoint for the streaming region.
   relay_state_endpoint = "https://appstream2.${data.aws_region.current.region}.aws.amazon.com/saml"
 
-  entity_id = "urn:amazon:webservices"
-  acs_url   = "https://signin.aws.amazon.com/saml"
+  acs_url = "https://signin.aws.amazon.com/saml"
 }
 
 ##############################################################################
@@ -31,7 +30,12 @@ resource "azuread_application" "this" {
 
   display_name     = "${var.display_name_prefix} ${each.value.display_name}"
   sign_in_audience = "AzureADMyOrg"
-  identifier_uris  = ["${local.entity_id}:${var.name_prefix}:${each.key}"]
+
+  # Entra requires a unique identifier URI per application, but AWS expects the
+  # audience to be its SAML sign-in endpoint. The documented way to register
+  # more than one AWS application in a tenant is to append a fragment, which
+  # AWS ignores.
+  identifier_uris = ["${local.acs_url}#${var.name_prefix}-${each.key}"]
 
   web {
     redirect_uris = [local.acs_url]
@@ -180,10 +184,12 @@ data "aws_iam_policy_document" "assume_role" {
       identifiers = [aws_iam_saml_provider.this[each.key].arn]
     }
 
+    # StringLike rather than StringEquals because the audience carries the
+    # per-application fragment described above.
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "SAML:aud"
-      values   = ["https://signin.aws.amazon.com/saml"]
+      values   = ["${local.acs_url}*"]
     }
   }
 }

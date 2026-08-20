@@ -248,9 +248,10 @@ module "streaming" {
   service_account_name     = "${var.domain_netbios_name}\\${var.directory_service_account_name}"
   service_account_password = module.directory.service_account_password
 
-  base_image_name       = var.appstream_base_image_name
-  enable_image_builders = var.enable_image_builders
-  image_builders        = local.image_builders
+  enable_directory_config = var.enable_image_builders || var.enable_streaming_fleets
+  base_image_name         = var.appstream_base_image_name
+  enable_image_builders   = var.enable_image_builders
+  image_builders          = local.image_builders
 
   enable_fleets      = var.enable_streaming_fleets
   fleets             = local.fleets

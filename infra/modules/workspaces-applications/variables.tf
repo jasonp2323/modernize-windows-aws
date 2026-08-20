@@ -40,6 +40,12 @@ variable "service_account_password" {
   sensitive   = true
 }
 
+variable "enable_directory_config" {
+  description = "Register the directory configuration. Requires the domain service account to exist, so it is enabled with the image builders or fleets."
+  type        = bool
+  default     = false
+}
+
 variable "base_image_name" {
   description = <<-EOT
     Public base image the image builders start from, for example

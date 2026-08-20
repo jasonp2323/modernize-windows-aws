@@ -39,6 +39,11 @@ resource "aws_vpc_security_group_egress_rule" "fleet_all" {
 ##############################################################################
 
 resource "aws_appstream_directory_config" "this" {
+  # Registered only when something needs it. AppStream validates the service
+  # account credentials on create, and that account is created by the domain
+  # automation - so this must not run during the first stage.
+  count = var.enable_directory_config ? 1 : 0
+
   directory_name                          = var.directory_name
   organizational_unit_distinguished_names = var.organizational_unit_distinguished_names
 
