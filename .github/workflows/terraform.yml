@@ -1,0 +1,63 @@
+name: terraform
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: fmt and validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.3
+          terraform_wrapper: false
+
+      # Plans and applies belong to HCP Terraform's VCS-driven workflow. CI only
+      # checks that what lands on the branch is well formed and internally
+      # consistent, so it needs no cloud credentials of any kind.
+      - name: Format and validate
+        run: ./scripts/ci/validate.sh
+
+  powershell:
+    name: powershell syntax
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      # The domain build-out is PowerShell delivered through SSM, so a parse
+      # error would only surface on a running instance. Catch it here instead.
+      - name: Parse automation scripts
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem -Path scripts -Recurse -Filter *.ps1 | ForEach-Object {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$errors) | Out-Null
+            if ($errors) {
+              $failed = $true
+              Write-Host "::error file=$($_.FullName)::$($errors | ForEach-Object { $_.Message })"
+            }
+            else {
+              Write-Host "ok  $($_.FullName)"
+            }
+          }
+          if ($failed) { exit 1 }

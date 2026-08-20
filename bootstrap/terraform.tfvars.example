@@ -1,0 +1,20 @@
+# Copy to terraform.tfvars and edit before running `terraform apply` locally.
+
+project_name         = "modernize-windows"
+aws_region           = "us-east-1"
+resource_name_prefix = "mwa" # must match name_prefix in infra/
+
+hcp_organization    = "my-hcp-org"
+hcp_project         = "Default Project"
+hcp_workspace_names = ["modernize-windows-aws"]
+
+# Fast lab path (skips the scoped policy):
+# use_administrator_access = true
+
+# Create the VCS-driven workspace from here as well. Requires TFE_TOKEN and the
+# OAuth token ID of the GitHub connection in your HCP Terraform organization
+# (Settings -> Providers -> VCS Providers).
+# manage_hcp_workspace = true
+# vcs_repo_identifier  = "jasonp2323/modernize-windows-aws"
+# vcs_branch           = "main"
+# vcs_oauth_token_id   = "ot-XXXXXXXXXXXXXXXX"

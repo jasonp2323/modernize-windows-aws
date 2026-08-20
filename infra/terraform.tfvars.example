@@ -1,0 +1,51 @@
+# HCP Terraform runs this stack from a VCS-driven workspace, so these values
+# normally live as workspace variables rather than in a committed file. This
+# file documents the ones worth setting, and doubles as a local override when
+# you are experimenting outside the workspace.
+
+name_prefix = "mwa"
+environment = "lab"
+owner       = "platform-team"
+aws_region  = "us-east-1"
+
+# Network
+vpc_cidr           = "10.20.0.0/16"
+az_count           = 2
+single_nat_gateway = true
+# CIDRs allowed to RDP. Leave empty to force Fleet Manager / Session Manager.
+admin_cidrs = []
+
+# Directory
+domain_name         = "corp.example.com"
+domain_netbios_name = "CORP"
+directory_edition   = "Standard"
+
+# File storage
+fsx_profiles_storage_capacity    = 200
+fsx_profiles_throughput_capacity = 64
+fslogix_container_size_mb        = 30000
+fslogix_enable_office_container  = true
+
+# Application tier and database
+app_server_count     = 1
+sql_engine           = "sqlserver-se"
+sql_instance_class   = "db.m6i.large"
+sql_multi_az         = false
+
+##############################################################################
+# Stage 2 - image builders
+##############################################################################
+# enable_image_builders     = true
+# appstream_base_image_name = "AppStream-WinServer2022-07-21-2025"
+
+##############################################################################
+# Stage 3 - fleets, stacks and Entra ID federation
+##############################################################################
+# enable_streaming_fleets      = true
+# appstream_app_image_name     = "mwa-lob-app-2026-01-15"
+# appstream_desktop_image_name = "mwa-desktop-2026-01-15"
+# wait_for_domain_automation   = true
+#
+# enable_entra_saml = true
+# entra_tenant_id   = "00000000-0000-0000-0000-000000000000"
+# entra_upn_suffix  = "example.com"
